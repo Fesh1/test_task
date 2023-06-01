@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, File
 from utils.services import SoftceryQueue
 import logging
 import uvicorn
@@ -12,8 +12,8 @@ logging.info('Start image processing api!')
 
 
 @app.post('/add_image')
-def add_image_to_queue(file: UploadFile):
-    return SoftceryQueue(produce_message=True).add_image_to_processing_queue(filename=file.filename, file=file)
+def add_image_to_queue(filename: str,file: UploadFile = File(...)):
+    return SoftceryQueue(produce_message=True).add_image_to_processing_queue(filename=filename, file=file.file.read())
 
 
 @app.post('/get_image')
