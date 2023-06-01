@@ -1,8 +1,7 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks
 from utils.services import SoftceryQueue
 import logging
 import uvicorn
-from typing import Optional
 from starlette.responses import JSONResponse
 
 app = FastAPI()
@@ -17,7 +16,7 @@ def add_image_to_queue(filename: str,file: UploadFile = File(...)):
 
 
 @app.post('/get_image')
-def get_image_by_id(file_id: str, quality: Optional[int] = 100):
+def get_image_by_id(file_id: str, quality: int, background_task: BackgroundTasks):
     if quality not in [25, 50, 75, 100]:
         return JSONResponse(status_code=400, content={
                 "success": False,
@@ -26,7 +25,9 @@ def get_image_by_id(file_id: str, quality: Optional[int] = 100):
                 "report": "Incorrect quality is given. only 25/50/75/100 value is valid",
                 "message": "Incorrect quality param."
             })
-    return SoftceryQueue(produce_message=False).return_image(file_id, quality/100)
+    f, delete_after_response = SoftceryQueue(produce_message=False).return_image(file_id, quality/100)
+    background_task.add_task(delete_after_response,)# delete all filed after they are responded to client
+    return f
 
 
 

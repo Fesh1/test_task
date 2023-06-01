@@ -1,8 +1,9 @@
 import os
 import time
+from fastapi.responses import FileResponse
+
 from utils.rabbitmq_client import AbstractProducer, AbstractConsumer
 from utils import image_processing
-
 # TODO: add file formats accepted by this code
 # TODO: 404 code error if image in processing while SoftceryQueue.return_image is called
 
@@ -98,12 +99,16 @@ class SoftceryQueue:
             image_path = SoftceryQueue.__origin_image_storage_path(image_id)
 
         if os.path.exists(image_path):
-            with open(image_path, 'rb') as f:
-                contex = f.read()
+
+            def delete_after_response():
+                rl = [SoftceryQueue.__resized_image_storage_path(image_id, q) for q in [0.25, 0.5, 0.75]]
+                rl.append(SoftceryQueue.__origin_image_storage_path(image_id))
+                def delete():
+                    list(map(image_processing.delete_image, rl))
+                return delete
+
+            response = FileResponse(image_path)
             # delete unnecessary pictures to free memory
-            rl = [SoftceryQueue.__resized_image_storage_path(image_id, q) for q in [0.25, 0.5, 0.75]]
-            rl.append(SoftceryQueue.__origin_image_storage_path(image_id))
-            list(map(image_processing.delete_image, rl))
-            return contex
+            return response, delete_after_response()
         else:
             raise ImageProcessingError(f'Image {image_id} in processing')

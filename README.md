@@ -8,10 +8,22 @@
 python3.10 -m pip install -r requirements.txt
 ```
 2. then istall RabbitMQ
+
+
 3. In new window start brocker
 ```bash
 docket-compose up -d
 ```
+4. set next env var for api and consumer
+```yaml
+ environment:
+     - rabbit_mq_host=127.0.0.1
+     - rabbit_mq_port=5672
+     - rabbit_mq_username=admin
+     - rabbit_mq_password=admin
+     - storage_path=./storage/
+```
+
 4. In new window start consumer
 ```bash
 python3.10 -c 'from utils import services; services.SoftceryQueue(produce_message=False).start_consuming_message()
@@ -24,6 +36,9 @@ python3.10 -m uvicorn main:app --host 0.0.0.0 --port 80
 
 ### Test
 
+```bash
+python3.10 test.py
+```
 
 ## API Documentation
 

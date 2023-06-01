@@ -1,4 +1,3 @@
-from fastapi.testclient import TestClient
 import requests
 import os
 import time
@@ -12,11 +11,12 @@ def test_post_image():
 
 def test_get_image(file_id):
     r = requests.post('http://0.0.0.0:80/get_image',
-        params={'file_id': file_id,'quality': 75}
+        params={'file_id': file_id, 'quality': 75}
        )
     print(r.content)
 
 
 f_id = test_post_image()
+print(f_id)
 time.sleep(1)
 test_get_image(f_id)
