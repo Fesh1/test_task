@@ -69,7 +69,6 @@ class SoftceryQueue:
         self.consumer.start_cosuming(self.image_processor)
 
     def add_image_to_processing_queue(self, file: bytes, filename: str):
-
         file_extension = filename.rsplit('.')[-1]
         # create unique image id
         image_id = str(round(time.time()))+'.'+file_extension
@@ -82,6 +81,7 @@ class SoftceryQueue:
         return image_id
 
     def image_processor(self, msg: bytes):
+        # compress images by 25,75,50 persent
         image_id = msg.decode('utf-8')
         original_image_path = SoftceryQueue.__origin_image_storage_path(image_id)
         for q in [0.25, 0.50, 0.75]:
@@ -101,6 +101,7 @@ class SoftceryQueue:
         if os.path.exists(image_path):
 
             def delete_after_response():
+                # delete origin of the image and it's compressed versions. TODO: it's not best solutions
                 rl = [SoftceryQueue.__resized_image_storage_path(image_id, q) for q in [0.25, 0.5, 0.75]]
                 rl.append(SoftceryQueue.__origin_image_storage_path(image_id))
                 def delete():
@@ -108,7 +109,6 @@ class SoftceryQueue:
                 return delete
 
             response = FileResponse(image_path)
-            # delete unnecessary pictures to free memory
             return response, delete_after_response()
         else:
             raise ImageProcessingError(f'Image {image_id} in processing')
