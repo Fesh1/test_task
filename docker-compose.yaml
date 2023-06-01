@@ -1,3 +1,6 @@
+#networks:
+#  app-net:
+#    name: custom_network
 version: "2.1"
 services:
   rabbitmq:
@@ -5,7 +8,7 @@ services:
     hostname: rabbitmq
     restart: always
     environment:
-      - RABBITMQ_DEFAULT_USER=auser
+      - RABBITMQ_DEFAULT_USER=andrii
       - RABBITMQ_DEFAULT_PASS=andriifesh
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
     volumes:
@@ -13,3 +16,42 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+    #networks:
+    #  - app-net
+  # image_processing_api:
+  #   image: image_processing_api:0.1
+  #   hostname: image_processing_api
+  #   restart: always
+  #   environment:
+  #     - rabbit_mq_host=127.0.0.1
+  #     - rabbit_mq_port=5672
+  #     - rabbit_mq_username=admin
+  #     - rabbit_mq_password=admin
+  #     - storage_path=./storage/
+
+  #   volumes:
+  #     - ./storage:/Users/andriifesh/job_search/test_task_softcery/storage/
+  #   ports:
+  #     - 8888:7675
+  #     - 5672:5672
+  #   networks:
+  #     - app-net
+  #   command: python3.10 -m uvicorn main:app --host 0.0.0.0 --port 8888
+  # image_processing_consumer:
+  #   image: image_processing_api:0.1
+  #   hostname: image_processing_consumer
+  #   restart: always
+  #   environment:
+  #     - rabbit_mq_host=127.0.0.1
+  #     - rabbit_mq_port=5672
+  #     - rabbit_mq_username=admin
+  #     - rabbit_mq_password=admin
+  #     - storage_path=./storage/
+  #   networks:
+  #     - app-net
+  #   volumes:
+  #     - ./storage:/Users/andriifesh/job_search/test_task_softcery/storage/
+  #   ports:
+  #     - 5672:5672
+  #   command: python3.10 -c 'from utils import services; services.SoftceryQueue(produce_message=False).start_consuming_message()'
+    

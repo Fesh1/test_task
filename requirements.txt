@@ -2,3 +2,4 @@ uvicorn[standard]
 pika
 fastapi
 opencv-python
+typing
